@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-// import { Textarea } from "@/components/ui/textarea"; // Keep or remove based on actual usage
+
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import {
@@ -25,11 +25,11 @@ function ManageFeatureImages() {
 
   const dispatch = useDispatch();
   const { toast } = useToast();
-  // --- HARDCODED CLOUDINARY DETAILS ---
+ 
 
   const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || "First_Name_Using_Cloudinary";
   const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || "dni1ntukq";
-    // E.g., "ml_default" or a custom one you created
+    
  
 
   useEffect(() => {
@@ -49,7 +49,7 @@ function ManageFeatureImages() {
       return;
     }
 
-    // Prepare FormData for direct Cloudinary upload
+  
     const data = new FormData();
     data.append("file", imageFile);
     data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
@@ -57,7 +57,7 @@ function ManageFeatureImages() {
 
     let actualCloudinaryUrl = "";
     try {
-      // Step 1: Upload image directly to Cloudinary
+      
       const cloudinaryResponse = await axios.post(
         `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
         data
@@ -74,20 +74,19 @@ function ManageFeatureImages() {
         description: cloudinaryError.response?.data?.message || cloudinaryError.message,
         variant: "destructive",
       });
-      return; // Stop the process if Cloudinary upload fails
+      return; 
     }
 
-    // Step 2: Send the Cloudinary URL and other data to your backend
+   
     const payloadForBackend = {
       image: {
         image: actualCloudinaryUrl,
-        // This structure matches your backend's expected format
+       
         title: title,
         link: link,
         order: Number(order),
       },
-      // If your backend expects a different structure, adjust accordingly
-      // For example, if it expects a flat structure:
+      
       title: title,
       link: link,
       order: Number(order),
@@ -100,12 +99,12 @@ function ManageFeatureImages() {
         toast({
           title: "Feature image added successfully!",
         });
-        // Reset form fields after successful submission
+        
         setImageFile(null);
         setTitle("");
         setLink("");
         setOrder(0);
-        // Clear the file input visually
+       
         document.getElementById("imageFile").value = "";
       } else {
         toast({
@@ -211,7 +210,7 @@ function ManageFeatureImages() {
             <Card key={image._id} className="relative">
               <CardContent className="p-4">
                 <img
-                  src={image.image} // Consider adding Cloudinary transformations here for display!
+                  src={image.image} 
                   alt={image.title || "Feature Image"}
                   className="w-full h-48 object-cover rounded mb-4"
                 />

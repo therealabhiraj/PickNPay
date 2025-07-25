@@ -10,7 +10,7 @@ const initialState = {
   userName: "",
   email: "",
   password: "",
-  role: "user", // Added default role
+  role: "user", 
 };
 
 function AuthRegister() {
@@ -36,7 +36,7 @@ function AuthRegister() {
     });
   }
 
-  // Handle role selection change
+  
   function handleRoleChange(event) {
     setFormData({
       ...formData,
@@ -44,7 +44,7 @@ function AuthRegister() {
     });
   }
 
-  console.log(formData); // You'll see the role in here now
+  console.log(formData); 
 
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
@@ -63,7 +63,7 @@ function AuthRegister() {
         </p>
       </div>
 
-      {/* Role Selection Radios */}
+      
       <div className="flex justify-center gap-4 py-2">
         <div className="flex items-center space-x-2">
           <input

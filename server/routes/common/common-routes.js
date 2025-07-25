@@ -1,16 +1,3 @@
-// const express = require("express");
-// const {
-//     getFeatureImages,
-//     addFeatureImage,
-// } = require("../../controllers/common/common-controller"); // This is the line to fix!
-
-// const router = express.Router();
-
-// router.get("/common/feature/get", getFeatureImages);
-// router.post("/common/feature/add", addFeatureImage);
-
-// module.exports = router;
-
 const express = require("express");
 const {
     getFeatureImages,

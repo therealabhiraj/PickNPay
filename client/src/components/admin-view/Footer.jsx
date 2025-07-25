@@ -1,4 +1,4 @@
-// client/src/components/shopping-view/Footer.jsx
+
 
 import React from 'react';
 import { Link } from 'react-router-dom';

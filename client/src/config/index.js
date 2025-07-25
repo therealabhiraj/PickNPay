@@ -1,5 +1,9 @@
-export const BASE_API_URL = import.meta.env.VITE_BACKEND_URL;
-export const registerFormControls = [
+
+export const BASE_API_URL =
+  import.meta.env.MODE === 'development'
+    ? 'http://localhost:5000' 
+    : import.meta.env.VITE_BACKEND_URL; 
+    export const registerFormControls = [
   {
     name: "userName",
     label: "User Name",

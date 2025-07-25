@@ -14,14 +14,13 @@ const shopOrderRouter = require("./routes/shop/order-routes");
 const shopSearchRouter = require("./routes/shop/search-routes");
 const shopReviewRouter = require("./routes/shop/review-routes");
 
-const commonRoutes = require("./routes/common/common-routes"); // Adjust this path if common-routes.js is elsewhere
+const commonRoutes = require("./routes/common/common-routes"); 
 const commonFeatureRouter = require("./routes/common/feature-routes");
 
-//create a database connection -> u can also
-//create a separate file for this and then import/use that file here
+
 
 mongoose
-  .connect(process.env.MONGO_DB_URL) // <--- Make sure it's process.env.MONGO_DB_URL
+  .connect(process.env.MONGO_DB_URL) 
   .then(() => console.log("MongoDB connected"))
   .catch((error) => console.log(error));
 
@@ -56,7 +55,7 @@ app.use("/api/shop/order", shopOrderRouter);
 app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
 
-app.use("/api", commonRoutes); // Use these new common routes
+app.use("/api", commonRoutes); 
 app.use("/api/common/feature", commonFeatureRouter);
 
 app.listen(PORT, () => console.log(`Server is now running on port ${PORT}`));

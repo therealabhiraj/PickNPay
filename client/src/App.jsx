@@ -14,7 +14,7 @@ import ShoppingHome from "./pages/shopping-view/home";
 import ShoppingListing from "./pages/shopping-view/listing";
 import ShoppingCheckout from "./pages/shopping-view/checkout";
 import ShoppingAccount from "./pages/shopping-view/account";
-import CheckAuth from "./components/common/check-auth"; // Keep this imported
+import CheckAuth from "./components/common/check-auth"; 
 import UnauthPage from "./pages/unauth-page";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
@@ -63,12 +63,7 @@ function App() {
           <Route path="register" element={<AuthRegister />} />
         </Route>
 
-        {/* --- START TEMPORARY AUTH BYPASS FOR MANAGE HOMEPAGE IMAGES --- */}
-        {/* Define the admin image management page OUTSIDE the protected /admin route */}
-        <Route path="/admin/manage-homepage-images" element={<ManageFeatureImages />} />
-        {/* --- END TEMPORARY AUTH BYPASS --- */}
-
-        {/* The main /admin route remains protected */}
+         <Route path="/admin/manage-homepage-images" element={<ManageFeatureImages />} />
         <Route
           path="/admin"
           element={
@@ -78,8 +73,7 @@ function App() {
             </CheckAuth>
           }
         >
-          {/* All other admin sub-routes remain here, protected by CheckAuth */}
-          <Route path="dashboard" element={<AdminDashboard />} />
+           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="features" element={<AdminFeatures />} />

@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 const initialState = {
   email: "",
   password: "",
-  role: "user", // Added default role
+  role: "user", 
 };
 
 function AuthLogin() {
@@ -25,9 +25,7 @@ function AuthLogin() {
         toast({
           title: data?.payload?.message,
         });
-        // You might want to redirect based on role here, e.g.:
-        // if (data.payload.data.user.role === 'admin') navigate('/admin/dashboard');
-        // else navigate('/');
+        
       } else {
         toast({
           title: data?.payload?.message,
@@ -37,7 +35,7 @@ function AuthLogin() {
     });
   }
 
-  // Handle role selection change
+  
   function handleRoleChange(event) {
     setFormData({
       ...formData,
@@ -62,7 +60,7 @@ function AuthLogin() {
         </p>
       </div>
 
-      {/* Role Selection Radios */}
+      
       <div className="flex justify-center gap-4 py-2">
         <div className="flex items-center space-x-2">
           <input

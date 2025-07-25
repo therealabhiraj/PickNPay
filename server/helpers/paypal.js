@@ -1,4 +1,4 @@
-// server/helpers/paypal.js (UPDATED CONTENT)
+
 const paypal = require("paypal-rest-sdk");
 
 paypal.configure({

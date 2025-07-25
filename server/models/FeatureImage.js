@@ -2,19 +2,19 @@ const mongoose = require("mongoose");
 
 const FeatureImageSchema = new mongoose.Schema({
     image: {
-        type: String, // To store the Cloudinary URL of the image
+        type: String, 
         required: true,
     },
     title: {
-        type: String, // Optional: for a title on the banner
+        type: String,
         default: '',
     },
     link: {
-        type: String, // Optional: URL to redirect when banner is clicked
+        type: String, 
         default: '',
     },
     order: {
-        type: Number, // Optional: for controlling display order
+        type: Number, 
         default: 0,
     },
     createdAt: {

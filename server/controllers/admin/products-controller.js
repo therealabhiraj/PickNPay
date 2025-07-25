@@ -20,7 +20,7 @@ const handleImageUpload = async (req, res) => {
   }
 };
 
-//add a new product
+
 const addProduct = async (req, res) => {
   try {
     const {
@@ -63,7 +63,7 @@ const addProduct = async (req, res) => {
   }
 };
 
-//fetch all products
+
 
 const fetchAllProducts = async (req, res) => {
   try {
@@ -81,7 +81,7 @@ const fetchAllProducts = async (req, res) => {
   }
 };
 
-//edit a product
+
 const editProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -129,7 +129,7 @@ const editProduct = async (req, res) => {
   }
 };
 
-//delete a product
+
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
