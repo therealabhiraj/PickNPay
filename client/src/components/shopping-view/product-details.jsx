@@ -12,6 +12,8 @@ import { Label } from "../ui/label";
 import StarRatingComponent from "../common/star-rating";
 import { useEffect, useState } from "react";
 import { addReview, getReviews } from "@/store/shop/review-slice";
+import axios from "axios";
+import { BASE_API_URL } from "../../config";
 
 function ProductDetailsDialog({ open, setOpen, productDetails }) {
   const [reviewMsg, setReviewMsg] = useState("");
@@ -21,11 +23,14 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   const { cartItems } = useSelector((state) => state.shopCart);
   const { reviews } = useSelector((state) => state.shopReview);
 
+  const [recommendations, setRecommendations] = useState([]);
+  const [recsLoading, setRecsLoading] = useState(false);
+  const [recsError, setRecsError] = useState(null);
+
   const { toast } = useToast();
 
   function handleRatingChange(getRating) {
     console.log(getRating, "getRating");
-
     setRating(getRating);
   }
 
@@ -43,7 +48,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
             title: `Only ${getQuantity} quantity can be added for this item`,
             variant: "destructive",
           });
-
           return;
         }
       }
@@ -69,6 +73,8 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
     dispatch(setProductDetails());
     setRating(0);
     setReviewMsg("");
+    setRecommendations([]);
+    setRecsError(null);
   }
 
   function handleAddReview() {
@@ -94,7 +100,53 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
 
   useEffect(() => {
     if (productDetails !== null) dispatch(getReviews(productDetails?._id));
-  }, [productDetails]);
+  }, [productDetails, dispatch]);
+
+  useEffect(() => {
+    console.log("ProductDetailsDialog useEffect triggered for recommendations.");
+    console.log("Current productDetails prop in dialog:", productDetails);
+
+    async function fetchRecommendationsForProduct() {
+      if (!productDetails || !productDetails._id) {
+        console.log("ProductDetailsDialog: No productDetails or productDetails._id, skipping recommendation fetch.");
+        setRecommendations([]);
+        return;
+      }
+
+      console.log(`ProductDetailsDialog: Attempting to fetch recommendations for product ID: ${productDetails._id}`);
+      console.log(`ProductDetailsDialog: Using BASE_API_URL: ${BASE_API_URL}`);
+
+      setRecsLoading(true);
+      setRecsError(null);
+      try {
+        console.log(`ProductDetailsDialog: Fetching recommendations from: ${BASE_API_URL}/api/shop/recommendations/${productDetails._id}`);
+        const response = await axios.get(
+          `${BASE_API_URL}/api/shop/recommendations/${productDetails._id}`
+        );
+        if (response.data.success) {
+          console.log("ProductDetailsDialog: Recommendations fetched successfully:", response.data.data);
+          setRecommendations(response.data.data);
+        } else {
+          console.warn(
+            "ProductDetailsDialog: No specific recommendations returned or an issue occurred:",
+            response.data.message
+          );
+          setRecommendations([]);
+        }
+      } catch (err) {
+        console.error("ProductDetailsDialog: Failed to fetch recommendations:", err);
+        setRecsError(
+          err.response?.data?.message ||
+            "Failed to load recommendations due to a network or server error."
+        );
+        setRecommendations([]);
+      } finally {
+        setRecsLoading(false);
+      }
+    }
+
+    fetchRecommendationsForProduct();
+  }, [productDetails, open]);
 
   console.log(reviews, "reviews");
 
@@ -106,115 +158,160 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="grid grid-cols-2 gap-8 sm:p-12 max-w-[90vw] sm:max-w-[80vw] lg:max-w-[70vw]">
-        <div className="relative overflow-hidden rounded-lg">
-          <img
-            src={productDetails?.image}
-            alt={productDetails?.title}
-            width={600}
-            height={600}
-            className="aspect-square w-full object-cover"
-          />
-        </div>
-        <div className="">
-          <div>
-            <h1 className="text-3xl font-extrabold">{productDetails?.title}</h1>
-            <p className="text-muted-foreground text-2xl mb-5 mt-4">
-              {productDetails?.description}
-            </p>
+      
+      <DialogContent className="flex flex-col gap-6 sm:p-8 max-w-[90vw] sm:max-w-[80vw] lg:max-w-[70vw] h-[90vh] overflow-y-auto">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-shrink-0"> 
+          <div className="relative overflow-hidden rounded-lg">
+            <img
+              src={productDetails?.image}
+              alt={productDetails?.title}
+              width={600}
+              height={600}
+              className="aspect-square w-full object-cover"
+            />
           </div>
-          <div className="flex items-center justify-between">
-            <p
-              className={`text-3xl font-bold text-primary ${
-                productDetails?.salePrice > 0 ? "line-through" : ""
-              }`}
-            >
-              ${productDetails?.price}
-            </p>
-            {productDetails?.salePrice > 0 ? (
-              <p className="text-2xl font-bold text-muted-foreground">
-                ${productDetails?.salePrice}
+         
+          <div className="flex flex-col">
+            <div>
+              <h1 className="text-3xl font-extrabold">{productDetails?.title}</h1>
+              <p className="text-muted-foreground text-2xl mb-5 mt-4">
+                {productDetails?.description}
               </p>
-            ) : null}
-          </div>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="flex items-center gap-0.5">
-              <StarRatingComponent rating={averageReview} />
             </div>
-            <span className="text-muted-foreground">
-              ({averageReview.toFixed(2)})
-            </span>
-          </div>
-          <div className="mt-5 mb-5">
-            {productDetails?.totalStock === 0 ? (
-              <Button className="w-full opacity-60 cursor-not-allowed">
-                Out of Stock
-              </Button>
-            ) : (
-              <Button
-                className="w-full"
-                onClick={() =>
-                  handleAddToCart(
-                    productDetails?._id,
-                    productDetails?.totalStock
-                  )
-                }
+            <div className="flex items-center justify-between">
+              <p
+                className={`text-3xl font-bold text-primary ${
+                  productDetails?.salePrice > 0 ? "line-through" : ""
+                }`}
               >
-                Add to Cart
-              </Button>
-            )}
-          </div>
-          <Separator />
-          <div className="max-h-[300px] overflow-auto">
-            <h2 className="text-xl font-bold mb-4">Reviews</h2>
-            <div className="grid gap-6">
-              {reviews && reviews.length > 0 ? (
-                reviews.map((reviewItem) => (
-                  <div className="flex gap-4">
-                    <Avatar className="w-10 h-10 border">
-                      <AvatarFallback>
-                        {reviewItem?.userName[0].toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold">{reviewItem?.userName}</h3>
-                      </div>
-                      <div className="flex items-center gap-0.5">
-                        <StarRatingComponent rating={reviewItem?.reviewValue} />
-                      </div>
-                      <p className="text-muted-foreground">
-                        {reviewItem.reviewMessage}
-                      </p>
-                    </div>
-                  </div>
-                ))
+                ${productDetails?.price}
+              </p>
+              {productDetails?.salePrice > 0 ? (
+                <p className="text-2xl font-bold text-muted-foreground">
+                  ${productDetails?.salePrice}
+                </p>
+              ) : null}
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-0.5">
+                <StarRatingComponent rating={averageReview} />
+              </div>
+              <span className="text-muted-foreground">
+                ({averageReview.toFixed(2)})
+              </span>
+            </div>
+            <div className="mt-5 mb-5">
+              {productDetails?.totalStock === 0 ? (
+                <Button className="w-full opacity-60 cursor-not-allowed">
+                  Out of Stock
+                </Button>
               ) : (
-                <h1>No Reviews</h1>
+                <Button
+                  className="w-full"
+                  onClick={() =>
+                    handleAddToCart(
+                      productDetails?._id,
+                      productDetails?.totalStock
+                    )
+                  }
+                >
+                  Add to Cart
+                </Button>
               )}
             </div>
-            <div className="mt-10 flex-col flex gap-2">
-              <Label>Write a review</Label>
-              <div className="flex gap-1">
-                <StarRatingComponent
-                  rating={rating}
-                  handleRatingChange={handleRatingChange}
-                />
+            <Separator />
+           
+            <div className="flex-grow overflow-y-auto pr-2"> 
+              <h2 className="text-xl font-bold mb-4 mt-4">Reviews</h2>
+              <div className="grid gap-6">
+                {reviews && reviews.length > 0 ? (
+                  reviews.map((reviewItem) => (
+                    <div key={reviewItem._id} className="flex gap-4">
+                      <Avatar className="w-10 h-10 border">
+                        <AvatarFallback>
+                          {reviewItem?.userName[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="grid gap-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold">{reviewItem?.userName}</h3>
+                        </div>
+                        <div className="flex items-center gap-0.5">
+                          <StarRatingComponent rating={reviewItem?.reviewValue} />
+                        </div>
+                        <p className="text-muted-foreground">
+                          {reviewItem.reviewMessage}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <h1>No Reviews</h1>
+                )}
               </div>
-              <Input
-                name="reviewMsg"
-                value={reviewMsg}
-                onChange={(event) => setReviewMsg(event.target.value)}
-                placeholder="Write a review..."
-              />
-              <Button
-                onClick={handleAddReview}
-                disabled={reviewMsg.trim() === ""}
-              >
-                Submit
-              </Button>
+              <div className="mt-10 flex-col flex gap-2">
+                <Label>Write a review</Label>
+                <div className="flex gap-1">
+                  <StarRatingComponent
+                    rating={rating}
+                    handleRatingChange={handleRatingChange}
+                  />
+                </div>
+                <Input
+                  name="reviewMsg"
+                  value={reviewMsg}
+                  onChange={(event) => setReviewMsg(event.target.value)}
+                  placeholder="Write a review..."
+                />
+                <Button
+                  onClick={handleAddReview}
+                  disabled={reviewMsg.trim() === ""}
+                >
+                  Submit
+                </Button>
+              </div>
             </div>
           </div>
+        </div>
+
+      
+        <Separator className="my-6" />
+        <div className="mt-4 w-full flex-shrink-0"> 
+          <h2 className="text-xl font-bold mb-4">Recommended for you:</h2>
+          {recsLoading ? (
+            <p>Loading recommendations...</p>
+          ) : recsError ? (
+            <p className="text-red-500">Error loading recommendations: {recsError}</p>
+          ) : recommendations.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {recommendations.map((rec) => (
+                <div
+                  key={rec._id}
+                  className="flex flex-col items-center text-center p-3 border rounded-lg shadow-sm cursor-pointer hover:bg-gray-50 transition-colors"
+                  onClick={() => {
+                    
+                    dispatch(setProductDetails(rec));
+                   
+                    const dialogContent = document.querySelector('.max-w-[90vw]'); 
+                    if (dialogContent) {
+                        dialogContent.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  <img
+                    src={rec.image}
+                    alt={rec.title}
+                    className="w-20 h-20 object-cover rounded-md mb-2"
+                  />
+                  <h3 className="text-base font-semibold line-clamp-2">{rec.title}</h3> 
+                  <p className="text-sm text-muted-foreground">${rec.price?.toFixed(2)}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">No specific recommendations available at this time.</p>
+          )}
         </div>
       </DialogContent>
     </Dialog>

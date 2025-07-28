@@ -1,5 +1,5 @@
 import ProductFilter from "@/components/shopping-view/filter";
-import ProductDetailsDialog from "@/components/shopping-view/product-details";
+import ProductDetailsDialog from "@/components/shopping-view/product-details"; 
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,11 +10,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
-import { sortOptions } from "@/config";
+import { sortOptions } from "@/config"; 
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import {
   fetchAllFilteredProducts,
-  fetchProductDetails,
+  fetchProductDetails, 
 } from "@/store/shop/products-slice";
 import { ArrowUpDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -78,6 +78,7 @@ function ShoppingListing() {
     sessionStorage.setItem("filters", JSON.stringify(cpyFilters));
   }
 
+  
   function handleGetProductDetails(getCurrentProductId) {
     console.log(getCurrentProductId);
     dispatch(fetchProductDetails(getCurrentProductId));
@@ -184,7 +185,8 @@ function ShoppingListing() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
           {productList && productList.length > 0
             ? productList.map((productItem) => (
-                <ShoppingProductTile
+                 <ShoppingProductTile
+                  key={productItem._id} 
                   handleGetProductDetails={handleGetProductDetails}
                   product={productItem}
                   handleAddtoCart={handleAddtoCart}
@@ -193,7 +195,7 @@ function ShoppingListing() {
             : null}
         </div>
       </div>
-      <ProductDetailsDialog
+       <ProductDetailsDialog
         open={openDetailsDialog}
         setOpen={setOpenDetailsDialog}
         productDetails={productDetails}
