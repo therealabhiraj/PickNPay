@@ -2,7 +2,14 @@
 export const BASE_API_URL =
   import.meta.env.MODE === 'development'
     ? 'http://localhost:5000' 
-    : import.meta.env.VITE_BACKEND_URL; 
+    : import.meta.env.VITE_BACKEND_URL;
+    
+    export const PYTHON_RECOMMENDER_API_BASE_URL =
+  import.meta.env.MODE === 'development'
+    ? 'http://localhost:5001' 
+    : import.meta.env.VITE_PYTHON_RECOMMENDER_PROD_URL; 
+
+
     export const registerFormControls = [
   {
     name: "userName",

@@ -13,7 +13,7 @@ import StarRatingComponent from "../common/star-rating";
 import { useEffect, useState } from "react";
 import { addReview, getReviews } from "@/store/shop/review-slice";
 import axios from "axios";
-import { BASE_API_URL } from "../../config";
+import { BASE_API_URL, PYTHON_RECOMMENDER_API_BASE_URL } from "../../config";
 
 function ProductDetailsDialog({ open, setOpen, productDetails }) {
   const [reviewMsg, setReviewMsg] = useState("");
@@ -103,38 +103,26 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   }, [productDetails, dispatch]);
 
   useEffect(() => {
-    console.log("ProductDetailsDialog useEffect triggered for recommendations.");
-    console.log("Current productDetails prop in dialog:", productDetails);
+    if (!open || !productDetails || !productDetails._id) {
+      setRecommendations([]);
+      return;
+    }
 
     async function fetchRecommendationsForProduct() {
-      if (!productDetails || !productDetails._id) {
-        console.log("ProductDetailsDialog: No productDetails or productDetails._id, skipping recommendation fetch.");
-        setRecommendations([]);
-        return;
-      }
-
-      console.log(`ProductDetailsDialog: Attempting to fetch recommendations for product ID: ${productDetails._id}`);
-      console.log(`ProductDetailsDialog: Using BASE_API_URL: ${BASE_API_URL}`);
-
       setRecsLoading(true);
       setRecsError(null);
       try {
-        console.log(`ProductDetailsDialog: Fetching recommendations from: ${BASE_API_URL}/api/shop/recommendations/${productDetails._id}`);
         const response = await axios.get(
-          `${BASE_API_URL}/api/shop/recommendations/${productDetails._id}`
+          `${PYTHON_RECOMMENDER_API_BASE_URL}/recommendations/${productDetails._id}`
         );
-        if (response.data.success) {
-          console.log("ProductDetailsDialog: Recommendations fetched successfully:", response.data.data);
-          setRecommendations(response.data.data);
+        if (Array.isArray(response.data)) {
+          setRecommendations(response.data);
         } else {
-          console.warn(
-            "ProductDetailsDialog: No specific recommendations returned or an issue occurred:",
-            response.data.message
-          );
+          console.warn("Recommendations API did not return an array:", response.data);
           setRecommendations([]);
         }
       } catch (err) {
-        console.error("ProductDetailsDialog: Failed to fetch recommendations:", err);
+        console.error("Failed to fetch recommendations:", err);
         setRecsError(
           err.response?.data?.message ||
             "Failed to load recommendations due to a network or server error."
@@ -148,8 +136,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
     fetchRecommendationsForProduct();
   }, [productDetails, open]);
 
-  console.log(reviews, "reviews");
-
   const averageReview =
     reviews && reviews.length > 0
       ? reviews.reduce((sum, reviewItem) => sum + reviewItem.reviewValue, 0) /
@@ -158,10 +144,10 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      
+
       <DialogContent className="flex flex-col gap-6 sm:p-8 max-w-[90vw] sm:max-w-[80vw] lg:max-w-[70vw] h-[90vh] overflow-y-auto">
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-shrink-0"> 
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-shrink-0">
           <div className="relative overflow-hidden rounded-lg">
             <img
               src={productDetails?.image}
@@ -171,7 +157,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
               className="aspect-square w-full object-cover"
             />
           </div>
-         
+
           <div className="flex flex-col">
             <div>
               <h1 className="text-3xl font-extrabold">{productDetails?.title}</h1>
@@ -221,8 +207,8 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
               )}
             </div>
             <Separator />
-           
-            <div className="flex-grow overflow-y-auto pr-2"> 
+
+            <div className="flex-grow overflow-y-auto pr-2">
               <h2 className="text-xl font-bold mb-4 mt-4">Reviews</h2>
               <div className="grid gap-6">
                 {reviews && reviews.length > 0 ? (
@@ -275,9 +261,9 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
           </div>
         </div>
 
-      
+
         <Separator className="my-6" />
-        <div className="mt-4 w-full flex-shrink-0"> 
+        <div className="mt-4 w-full flex-shrink-0">
           <h2 className="text-xl font-bold mb-4">Recommended for you:</h2>
           {recsLoading ? (
             <p>Loading recommendations...</p>
@@ -290,10 +276,8 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                   key={rec._id}
                   className="flex flex-col items-center text-center p-3 border rounded-lg shadow-sm cursor-pointer hover:bg-gray-50 transition-colors"
                   onClick={() => {
-                    
                     dispatch(setProductDetails(rec));
-                   
-                    const dialogContent = document.querySelector('.max-w-[90vw]'); 
+                    const dialogContent = document.querySelector('.max-w-[90vw]');
                     if (dialogContent) {
                         dialogContent.scrollTo({ top: 0, behavior: 'smooth' });
                     }
@@ -304,7 +288,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                     alt={rec.title}
                     className="w-20 h-20 object-cover rounded-md mb-2"
                   />
-                  <h3 className="text-base font-semibold line-clamp-2">{rec.title}</h3> 
+                  <h3 className="text-base font-semibold line-clamp-2">{rec.title}</h3>
                   <p className="text-sm text-muted-foreground">${rec.price?.toFixed(2)}</p>
                 </div>
               ))}
