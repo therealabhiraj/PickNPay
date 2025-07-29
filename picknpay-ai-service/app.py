@@ -11,7 +11,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "http://localhost:5000", "https://picknpays.netlify.app/"]}})
+CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "http://localhost:5000", "https://picknpays.netlify.app"]}})
 
 MONGO_URI = os.getenv("MONGO_DB_URL")
 if not MONGO_URI:
