@@ -6,6 +6,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 import pandas as pd
 from dotenv import load_dotenv
+import sys
+print("⚠️ Python Version:", sys.version)
+
 
 load_dotenv()
 
