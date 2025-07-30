@@ -1,6 +1,6 @@
 # PickNPay: Seamless E-commerce with Intelligent Product Discovery and Role-Based Access Control
 
-![PickNPay Banner](https://via.placeholder.com/1200x400/0000FF/FFFFFF?text=PickNPay+E-commerce+Platform) ![PickNPay Logo](https://via.placeholder.com/150/0000FF/FFFFFF?text=PickNPay+Logo) **Project Title and Description:**
+![PickNPay Banner](https://github.com/therealabhiraj/PickNPay/blob/master/images/picnpaybanner.png) ![PickNPay Logo](https://via.placeholder.com/150/0000FF/FFFFFF?text=PickNPay+Logo) **Project Title and Description:**
 PickNPay is a cutting-edge e-commerce application designed to revolutionize the online shopping experience. It combines robust standard e-commerce functionalities with an advanced, AI-powered product recommendation system and **comprehensive Role-Based Access Control (RBAC)**. This platform provides distinct experiences for **customers (users)** who shop and **administrators** who manage products and other backend operations, making product discovery effortless and enjoyable by suggesting items tailored to customer interests, while empowering admins with full control.
 ## Table of Content
 
@@ -245,115 +245,7 @@ This comprehensive architectural design, with its distinct services and well-def
 
 
 
-## FlowChart
 
-+------------------+
-|      START       |
-|   (User Opens    |
-|    PickNPay)     |
-+--------+---------+
-         |
-         v
-+------------------+
-|    Frontend      |
-| (Display Home,   |
-|   Product List)  |
-+--------+---------+
-         |
-         | (HTTP GET /api/products)
-         +-------------------------------------------------+
-         |                                                 |
-         v                                                 v
-+------------------+                              +-----------------------+
-|  Node.js Backend |                              |    MongoDB Database   |
-| (Fetches Product |<-----------------------------|(Stores Product, User, |
-|    Data from     |                              |     Order Data)       |
-|    MongoDB)      |----------------------------->|                       |
-+--------+---------+                              +-----------------------+
-         |
-         | (Renders Products)
-         v
-+------------------+
-|    Frontend      |
-| (User Browses    |
-|  Products)       |
-+--------+---------+
-         |
-         | (User Clicks Product Detail)
-         v
-+------------------+
-|    Frontend      |
-| (Display Product |
-|    Details)      |
-+--------+---------+
-         |
-         | (HTTP GET /recommendations/{productId})
-         +--------------------------------------------------------+
-         |                                                        |
-         v                                                        v
-+---------------------------+                              +-----------------------+
-|  Python AI Recommendation |<-----------------------------|(Reads Product Data   |
-|       Service             |                              |  for Recommendations)|
-|   (Calculates & Returns   |----------------------------->|                       |
-|  Recommended Product IDs) |                              +-----------------------+
-+--------+------------------+
-         |
-         | (Recommended Product IDs)
-         v
-+------------------+
-|    Frontend      |
-| (Gets Full Product|
-|Details from Backend|
-|  via /api/products?ids=) |
-+--------+---------+
-         |
-         | (Adds/Updates/Removes Item)
-         v
-+------------------+
-|    Frontend      |
-| (Shopping Cart   |
-|    Management)   |
-+--------+---------+
-         |
-         | (HTTP POST/PUT /api/cart)
-         +-------------------------------------------------+
-         |                                                 |
-         v                                                 v
-+------------------+                              +-----------------------+
-|  Node.js Backend |                              |    MongoDB Database   |
-| (Updates Cart in |<-----------------------------|(Updates Cart Data)    |
-|    MongoDB)      |----------------------------->|                       |
-+--------+---------+                              +-----------------------+
-         |
-         | (Proceed to Checkout)
-         v
-+------------------+
-|    Frontend      |
-| (Initiates Checkout/|
-|    Payment)      |
-+--------+---------+
-         |
-         | (HTTP POST /api/orders, Interacts with PayPal/Stripe)
-         +-------------------------------------------------+
-         |                                                 |
-         v                                                 v
-+------------------+                              +-----------------------+
-|  Node.js Backend |                              |    MongoDB Database   |
-| (Processes Order,|<-----------------------------|(Saves Order Details)  |
-|   Confirms Payment) |----------------------------->|                       |
-+--------+---------+                              +-----------------------+
-         |
-         v
-+------------------+
-|    Frontend      |
-| (Displays Order  |
-|  Confirmation)   |
-+--------+---------+
-         |
-         v
-+------------------+
-|       END        |
-+------------------+
 ## Installation and Local Setup
 
 **Installation and Local Setup:**
