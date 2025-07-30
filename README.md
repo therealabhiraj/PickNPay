@@ -1,6 +1,8 @@
 # PickNPay: Seamless E-commerce with Intelligent Product Discovery and Role-Based Access Control
 
-![PickNPay Banner](https://github.com/therealabhiraj/PickNPay/blob/master/images/picnpaybanner.png) ![PickNPay Logo](https://via.placeholder.com/150/0000FF/FFFFFF?text=PickNPay+Logo) **Project Title and Description:**
+![PickNPay Banner](https://github.com/therealabhiraj/PickNPay/blob/master/images/picnpaybanner.png) 
+
+**Project Title and Description:**
 PickNPay is a cutting-edge e-commerce application designed to revolutionize the online shopping experience. It combines robust standard e-commerce functionalities with an advanced, AI-powered product recommendation system and **comprehensive Role-Based Access Control (RBAC)**. This platform provides distinct experiences for **customers (users)** who shop and **administrators** who manage products and other backend operations, making product discovery effortless and enjoyable by suggesting items tailored to customer interests, while empowering admins with full control.
 ## Table of Content
 
@@ -25,6 +27,20 @@ PickNPay is a cutting-edge e-commerce application designed to revolutionize the 
 * [**Contact**](#contact)
 
 ## Visuals and Demo
+![Login Page](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic1.png)
+![Home](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic2.png)
+![Products Section](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic3.png)
+![SortBy](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic5.png)
+![Search Pannel](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic4.png)
+![ChatBot](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic6.png)
+![ProductTile](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic7.png)
+![Reccomendations](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic8.png)
+![Cart](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic9.png)
+![Add Address](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic10.png)
+![Payment Gtaeway](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic11.png)
+![Admin Panel](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic12.png)
+![Add Products](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic13.png)
+![All orders](https://github.com/therealabhiraj/PickNPay/blob/master/images/pic14.png)
 
 
 ## Features
