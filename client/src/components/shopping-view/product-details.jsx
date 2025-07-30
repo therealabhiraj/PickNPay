@@ -7,7 +7,7 @@ import { Input } from "../ui/input";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "../ui/use-toast";
-import { setProductDetails } from "@/store/shop/products-slice";
+import { setProductDetails, fetchProductDetails } from "@/store/shop/products-slice"; 
 import { Label } from "../ui/label";
 import StarRatingComponent from "../common/star-rating";
 import { useEffect, useState } from "react";
@@ -30,7 +30,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   const { toast } = useToast();
 
   function handleRatingChange(getRating) {
-    console.log(getRating, "getRating");
     setRating(getRating);
   }
 
@@ -70,11 +69,21 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
 
   function handleDialogClose() {
     setOpen(false);
-    dispatch(setProductDetails());
+    dispatch(setProductDetails()); 
     setRating(0);
     setReviewMsg("");
     setRecommendations([]);
     setRecsError(null);
+  }
+
+  function handleRecommendedProductClick(rec) {
+    if (rec && rec._id) {
+      dispatch(fetchProductDetails(rec._id));
+      const dialogContent = document.querySelector('.max-w-[90vw]');
+      if (dialogContent) {
+          dialogContent.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
   }
 
   function handleAddReview() {
@@ -144,9 +153,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-
       <DialogContent className="flex flex-col gap-6 sm:p-8 max-w-[90vw] sm:max-w-[80vw] lg:max-w-[70vw] h-[90vh] overflow-y-auto">
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-shrink-0">
           <div className="relative overflow-hidden rounded-lg">
             <img
@@ -261,7 +268,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
           </div>
         </div>
 
-
         <Separator className="my-6" />
         <div className="mt-4 w-full flex-shrink-0">
           <h2 className="text-xl font-bold mb-4">Recommended for you:</h2>
@@ -275,13 +281,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                 <div
                   key={rec._id}
                   className="flex flex-col items-center text-center p-3 border rounded-lg shadow-sm cursor-pointer hover:bg-gray-50 transition-colors"
-                  onClick={() => {
-                    dispatch(setProductDetails(rec));
-                    const dialogContent = document.querySelector('.max-w-[90vw]');
-                    if (dialogContent) {
-                        dialogContent.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                  }}
+                  onClick={() => handleRecommendedProductClick(rec)}
                 >
                   <img
                     src={rec.image}
