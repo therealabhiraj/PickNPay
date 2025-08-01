@@ -1,87 +1,288 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProductDetails } from '@/store/shop/products-slice';
+import { addToCart, fetchCartItems } from '@/store/shop/cart-slice';
+import { useToast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import StarRatingComponent from '@/components/common/star-rating';
+import { addReview, getReviews } from '@/store/shop/review-slice';
 import axios from 'axios';
-import { BASE_API_URL, PYTHON_RECOMMENDER_API_BASE_URL } from "../../config";
+import { PYTHON_RECOMMENDER_API_BASE_URL } from '../../config';
 
 function ProductDetails() {
   const { productId } = useParams();
-  const [product, setProduct] = useState(null);
+  const dispatch = useDispatch();
+  const { productDetails, loading, error } = useSelector((state) => state.shopProducts);
+  const { cartItems } = useSelector((state) => state.shopCart);
+  const { user } = useSelector((state) => state.auth);
+  const { reviews } = useSelector((state) => state.shopReview);
+
+  const [reviewMsg, setReviewMsg] = useState('');
+  const [rating, setRating] = useState(0);
   const [recommendations, setRecommendations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [recsLoading, setRecsLoading] = useState(false);
+  const [recsError, setRecsError] = useState(null);
+
+  const { toast } = useToast();
 
   useEffect(() => {
-    async function fetchProductAndRecommendations() {
-      setLoading(true);
-      setError(null);
-      try {
-        const productRes = await axios.get(`${BASE_API_URL}/api/shop/products/${productId}`);
-        if (productRes.data.success) {
-          setProduct(productRes.data.data);
-        } else {
-          setError(productRes.data.message || "Could not load product details.");
-          setLoading(false);
-          return;
-        }
+    if (productId) {
+      dispatch(fetchProductDetails(productId));
+    }
+  }, [productId, dispatch]);
 
-        const recsRes = await axios.get(`${PYTHON_RECOMMENDER_API_BASE_URL}/recommendations/${productId}`);
-        if (Array.isArray(recsRes.data)) {
-          setRecommendations(recsRes.data);
+  useEffect(() => {
+    if (productDetails && productDetails._id) {
+      dispatch(getReviews(productDetails._id));
+    }
+  }, [productDetails, dispatch]);
+
+  useEffect(() => {
+    if (!productDetails || !productDetails._id) {
+      setRecommendations([]);
+      return;
+    }
+
+    async function fetchRecommendationsForProduct() {
+      setRecsLoading(true);
+      setRecsError(null);
+      try {
+        const response = await axios.get(
+          `${PYTHON_RECOMMENDER_API_BASE_URL}/recommendations/${productDetails._id}`
+        );
+        if (Array.isArray(response.data)) {
+          setRecommendations(response.data);
         } else {
-          console.warn("Recommendations API did not return an array or success was not true:", recsRes.data);
           setRecommendations([]);
         }
-
       } catch (err) {
-        console.error("Failed to fetch product or recommendations:", err);
-        setError(err.response?.data?.message || "Failed to load details or recommendations due to a network or server error.");
+        setRecsError('Failed to load recommendations due to a network or server error.');
+        setRecommendations([]);
       } finally {
-        setLoading(false);
+        setRecsLoading(false);
       }
     }
+    fetchRecommendationsForProduct();
+  }, [productDetails]);
 
-    if (productId) {
-      fetchProductAndRecommendations();
+  function handleRatingChange(getRating) {
+    setRating(getRating);
+  }
+
+  function handleAddToCart(getCurrentProductId, getTotalStock) {
+    let getCartItems = cartItems.items || [];
+    if (getCartItems.length) {
+      const indexOfCurrentItem = getCartItems.findIndex(
+        (item) => item.productId === getCurrentProductId
+      );
+      if (indexOfCurrentItem > -1) {
+        const getQuantity = getCartItems[indexOfCurrentItem].quantity;
+        if (getQuantity + 1 > getTotalStock) {
+          toast({
+            title: `Only ${getQuantity} quantity can be added for this item`,
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
     }
-  }, [productId]);
+    dispatch(
+      addToCart({
+        userId: user?.id,
+        productId: getCurrentProductId,
+        quantity: 1,
+      })
+    ).then((data) => {
+      if (data?.payload?.success) {
+        dispatch(fetchCartItems(user?.id));
+        toast({
+          title: 'Product is added to cart',
+        });
+      }
+    });
+  }
 
-  if (loading) return <div style={{ textAlign: 'center', padding: '20px' }}>Loading product details and recommendations...</div>;
-  if (error) return <div style={{ color: 'red', textAlign: 'center', padding: '20px' }}>Error: {error}</div>;
+  function handleAddReview() {
+    dispatch(
+      addReview({
+        productId: productDetails?._id,
+        userId: user?.id,
+        userName: user?.userName,
+        reviewMessage: reviewMsg,
+        reviewValue: rating,
+      })
+    ).then((data) => {
+      if (data.payload.success) {
+        setRating(0);
+        setReviewMsg('');
+        dispatch(getReviews(productDetails?._id));
+        toast({
+          title: 'Review added successfully!',
+        });
+      }
+    });
+  }
 
-  if (!product) return <div style={{ textAlign: 'center', padding: '20px' }}>Product not found.</div>;
+  const averageReview =
+    reviews && reviews.length > 0
+      ? reviews.reduce((sum, reviewItem) => sum + reviewItem.reviewValue, 0) /
+        reviews.length
+      : 0;
+
+  if (loading) return <div className="p-8 text-center">Loading product details...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">Error: Failed to load details or recommendations due to a network or server error.</div>;
+  if (!productDetails) return <div className="p-8 text-center">Product not found.</div>;
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '10px' }}>{product.title}</h1>
-      <p style={{ fontSize: '1.1em', color: '#555' }}>{product.description}</p>
-      <p><strong>Category:</strong> {product.category}</p>
-      <p><strong>Brand:</strong> {product.brand}</p>
-      <p><strong>Price:</strong> ${product.price?.toFixed(2)}</p>
-      {product.salePrice && <p style={{ color: 'green' }}><strong>Sale Price:</strong> ${product.salePrice?.toFixed(2)}</p>}
-      <p><strong>Stock:</strong> {product.totalStock}</p>
-
-      <hr style={{ margin: '30px 0' }} />
-
-      <h2 style={{ marginBottom: '20px' }}>Recommended for you:</h2>
-      {recommendations.length > 0 ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
-          {recommendations.map((rec) => (
-
-            <div key={rec._id} style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
-              <h3 style={{ margin: '0 0 10px', fontSize: '1.2em' }}>
-
-                <Link to={`/shop/product/${rec._id}`} style={{ textDecoration: 'none', color: '#007bff' }}>
-                  {rec.title}
-                </Link>
-              </h3>
-              <p style={{ margin: '0 0 5px', color: '#666' }}>{rec.category}</p>
-              <p style={{ fontWeight: 'bold' }}>${rec.price?.toFixed(2)}</p>
-            </div>
-          ))}
+    <div className="flex flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="relative overflow-hidden rounded-lg">
+          <img
+            src={productDetails?.image}
+            alt={productDetails?.title}
+            width={600}
+            height={600}
+            className="aspect-square w-full object-cover"
+          />
         </div>
-      ) : (
-        <p style={{ color: '#888' }}>No specific recommendations available at this time.</p>
-      )}
+
+        <div className="flex flex-col">
+          <div>
+            <h1 className="text-3xl font-extrabold">{productDetails?.title}</h1>
+            <p className="text-muted-foreground text-2xl mb-5 mt-4">
+              {productDetails?.description}
+            </p>
+          </div>
+          <div className="flex items-center justify-between">
+            <p
+              className={`text-3xl font-bold text-primary ${
+                productDetails?.salePrice > 0 ? 'line-through' : ''
+              }`}
+            >
+              ${productDetails?.price}
+            </p>
+            {productDetails?.salePrice > 0 ? (
+              <p className="text-2xl font-bold text-muted-foreground">
+                ${productDetails?.salePrice}
+              </p>
+            ) : null}
+          </div>
+          <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-0.5">
+              <StarRatingComponent rating={averageReview} />
+            </div>
+            <span className="text-muted-foreground">({averageReview.toFixed(2)})</span>
+          </div>
+          <div className="mt-5 mb-5">
+            {productDetails?.totalStock === 0 ? (
+              <Button className="w-full opacity-60 cursor-not-allowed">
+                Out of Stock
+              </Button>
+            ) : (
+              <Button
+                className="w-full"
+                onClick={() =>
+                  handleAddToCart(
+                    productDetails?._id,
+                    productDetails?.totalStock
+                  )
+                }
+              >
+                Add to Cart
+              </Button>
+            )}
+          </div>
+          <Separator />
+
+          <div className="flex-grow overflow-y-auto pr-2">
+            <h2 className="text-xl font-bold mb-4 mt-4">Reviews</h2>
+            <div className="grid gap-6">
+              {reviews && reviews.length > 0 ? (
+                reviews.map((reviewItem) => (
+                  <div key={reviewItem._id} className="flex gap-4">
+                    <Avatar className="w-10 h-10 border">
+                      <AvatarFallback>
+                        {reviewItem?.userName[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="grid gap-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold">{reviewItem?.userName}</h3>
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        <StarRatingComponent rating={reviewItem?.reviewValue} />
+                      </div>
+                      <p className="text-muted-foreground">
+                        {reviewItem.reviewMessage}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <h1>No Reviews</h1>
+              )}
+            </div>
+            <div className="mt-10 flex-col flex gap-2">
+              <Label>Write a review</Label>
+              <div className="flex gap-1">
+                <StarRatingComponent
+                  rating={rating}
+                  handleRatingChange={handleRatingChange}
+                />
+              </div>
+              <Input
+                name="reviewMsg"
+                value={reviewMsg}
+                onChange={(event) => setReviewMsg(event.target.value)}
+                placeholder="Write a review..."
+              />
+              <Button
+                onClick={handleAddReview}
+                disabled={reviewMsg.trim() === ''}
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Separator className="my-6" />
+      <div className="mt-4 w-full">
+        <h2 className="text-xl font-bold mb-4">Recommended for you:</h2>
+        {recsLoading ? (
+          <p>Loading recommendations...</p>
+        ) : recsError ? (
+          <p className="text-red-500">Error loading recommendations: {recsError}</p>
+        ) : recommendations.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {recommendations.map((rec) => (
+              <div
+                key={rec._id}
+                className="flex flex-col items-center text-center p-3 border rounded-lg shadow-sm cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => {
+                  window.location.href = `/shop/product/${rec._id}`;
+                }}
+              >
+                <img
+                  src={rec.image}
+                  alt={rec.title}
+                  className="w-20 h-20 object-cover rounded-md mb-2"
+                />
+                <h3 className="text-base font-semibold line-clamp-2">{rec.title}</h3>
+                <p className="text-sm text-muted-foreground">${rec.price?.toFixed(2)}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-muted-foreground">No specific recommendations available at this time.</p>
+        )}
+      </div>
     </div>
   );
 }
