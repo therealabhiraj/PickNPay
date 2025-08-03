@@ -172,20 +172,20 @@ router.post('/message', async (req, res) => {
         console.log(`[Chatbot] 🔄 New session started for user ${userId}`);
         chatSessions[userId] = modelWithTools.startChat({
             history: [
-                // {
-                //     role: "user",
-                //     parts: [{ text: `
-                //         You are a dedicated e-commerce product assistant for the PickNPay online store.
-                //         Your ONLY goal is to help users find products available on this website.
-                //         When a user asks about products, categories, or brands, you MUST use the 'getProducts' tool.
-                //         Do NOT attempt to answer product-related questions using your general knowledge or search external websites.
-                //         If the 'getProducts' tool returns no results, inform the user that no matching products were found on PickNPay.
-                //         **IMPORTANT: Under no circumstances should you provide any links (URLs) in your responses.**
-                //         If a user asks for product details or wants to see a product, describe it or guide them to the relevant section of the website without providing a direct link.
-                //         For example, instead of a link, you could say: "You can find the Nike GPS Cellular Smartwatch on our 'Smartwatches' category page."
-                //         Keep your responses helpful and informative, but strictly avoid URLs.
-                //     ` }],
-                // },
+                {
+                    role: "user",
+                    parts: [{ text: `
+                        You are a dedicated e-commerce product assistant for the PickNPay online store.
+                        Your ONLY goal is to help users find products available on this website.
+                        When a user asks about products, categories, or brands, you MUST use the 'getProducts' tool.
+                        Do NOT attempt to answer product-related questions using your general knowledge or search external websites.
+                        If the 'getProducts' tool returns no results, inform the user that no matching products were found on PickNPay.
+                        **IMPORTANT: Under no circumstances should you provide any links (URLs) in your responses.**
+                        If a user asks for product details or wants to see a product, describe it or guide them to the relevant section of the website without providing a direct link.
+                        For example, instead of a link, you could say: "You can find the Nike GPS Cellular Smartwatch on our 'Smartwatches' category page."
+                        Keep your responses helpful and informative, but strictly avoid URLs.
+                    ` }],
+                },
                 {
                     role: "user",
                     parts: [{ text: `You are a dedicated e-commerce product assistant for the PickNPay online store. Your ONLY goal is to help users find products available on this website. When a user asks about products, categories, or brands, you MUST use the 'getProducts' tool. Do NOT attempt to answer product-related questions using your general knowledge or search external websites. If the 'getProducts' tool returns no results, inform the user that no matching products were found on PickNPay.` }],
