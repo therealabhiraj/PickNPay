@@ -19,22 +19,16 @@ const getFilteredProducts = async (req, res) => {
     switch (sortBy) {
       case "price-lowtohigh":
         sort.price = 1;
-
         break;
       case "price-hightolow":
         sort.price = -1;
-
         break;
       case "title-atoz":
         sort.title = 1;
-
         break;
-
       case "title-ztoa":
         sort.title = -1;
-
         break;
-
       default:
         sort.price = 1;
         break;
@@ -47,7 +41,7 @@ const getFilteredProducts = async (req, res) => {
       data: products,
     });
   } catch (e) {
-    console.log(error);
+    console.log(e);
     res.status(500).json({
       success: false,
       message: "Some error occured",
@@ -71,7 +65,7 @@ const getProductDetails = async (req, res) => {
       data: product,
     });
   } catch (e) {
-    console.log(error);
+    console.log(e);
     res.status(500).json({
       success: false,
       message: "Some error occured",

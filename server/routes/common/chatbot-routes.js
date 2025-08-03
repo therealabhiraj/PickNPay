@@ -149,7 +149,7 @@ async function searchProducts(keywords, category, brand, limit = 5) {
             brand: p.brand,
             category: p.category,
             price: p.price,
-            link: `http://localhost:5173/shop/product/${p._id.toString()}`
+            link: `${process.env.FRONTEND_BASE_URL}/shop/product/${p._id.toString()}`
         }));
     } catch (error) {
         console.error("❌ DB Error during product search:", error);
@@ -214,8 +214,8 @@ router.post('/message', async (req, res) => {
                             name: "getProducts",
                             response: {
                                 products: [
-                                    { id: "123", name: "Nike Air Zoom", brand: "Nike", price: 120, link: "http://localhost:5173/shop/product/123" },
-                                    { id: "124", name: "Adidas Ultraboost", brand: "Adidas", price: 150, link: "http://localhost:5173/shop/product/124" },
+                                    { id: "123", name: "Nike Air Zoom", brand: "Nike", price: 120, link: "${process.env.FRONTEND_BASE_URL}/shop/product/123" },
+                                    { id: "124", name: "Adidas Ultraboost", brand: "Adidas", price: 150, link: "${process.env.FRONTEND_BASE_URL}/shop/product/124" },
                                 ],
                             },
                         },
